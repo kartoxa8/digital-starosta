@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Digital Starosta</title>
+  <link rel="stylesheet" href="/static/css/app.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <main id="app">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="group-badge">
+        <div class="avatar" id="group-avatar">DS</div>
+        <div class="group-info">
+          <h1 id="group-title">Loading...</h1>
+          <p id="group-subtitle">Connecting to university system</p>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="switchTab('tab-settings')">⚙</button>
+    </header>
+
+    <!-- ONBOARDING VIEW (Shown if user has no group) -->
+    <section id="view-onboarding" class="view" style="display: none;">
+      <div class="card hero-card">
+        <div class="hero-tag">GETTING STARTED</div>
+        <h2 class="hero-title">Welcome to Digital Starosta</h2>
+        <p class="hero-desc">The modern university attendance & group management system. Choose how you would like to proceed:</p>
+      </div>
+
+      <div class="tab-bar">
+        <button id="btn-tab-join" class="tab-btn active" onclick="switchOnboardingMode('join')">I am a Student (Join)</button>
+        <button id="btn-tab-create" class="tab-btn" onclick="switchOnboardingMode('create')">I am Head Student (Create)</button>
+      </div>
+
+      <!-- Join Form -->
+      <div id="form-join" class="card">
+        <div class="form-group">
+          <label>Invite Code</label>
+          <input id="join-code" class="input-field" placeholder="e.g. RQLDAP" maxlength="8" style="text-transform:uppercase" />
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input id="join-lastname" class="input-field" placeholder="e.g. Ivanov" />
+        </div>
+        <div class="form-group">
+          <label>First Name</label>
+          <input id="join-firstname" class="input-field" placeholder="e.g. Ivan" />
+        </div>
+        <div class="form-group">
+          <label>Middle Name (optional)</label>
+          <input id="join-middlename" class="input-field" placeholder="e.g. Ivanovich" />
+        </div>
+        <div class="form-group">
+          <label>Subgroup Assignment</label>
+          <select id="join-subgroup" class="input-field">
+            <option value="1">Subgroup 1</option>
+            <option value="2">Subgroup 2</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="submitJoinGroup()">Join Academic Group</button>
+      </div>
+
+      <!-- Create Form -->
+      <div id="form-create" class="card" style="display: none;">
+        <div class="form-group">
+          <label>Academic Group Name</label>
+          <input id="create-group-name" class="input-field" placeholder="e.g. IVT-21-1" />
+        </div>
+        <div class="form-group">
+          <label>Educational Institution / University</label>
+          <input id="create-university" class="input-field" placeholder="e.g. BMSTU" />
+        </div>
+        <div class="form-group">
+          <label>Head Student Last Name</label>
+          <input id="create-lastname" class="input-field" placeholder="e.g. Smirnov" />
+        </div>
+        <div class="form-group">
+          <label>Head Student First Name</label>
+          <input id="create-firstname" class="input-field" placeholder="e.g. Alexey" />
+        </div>
+        <div class="form-group">
+          <label>Your Subgroup</label>
+          <select id="create-subgroup" class="input-field">
+            <option value="1">Subgroup 1</option>
+            <option value="2">Subgroup 2</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="submitCreateGroup()">Create Group & Register as Head</button>
+      </div>
+    </section>
+
+    <!-- TAB 1: HOME / DASHBOARD -->
+    <section id="tab-home" class="view">
+      <!-- Currently Active Lesson Hero Card -->
+      <div class="card hero-card">
+        <div class="hero-header">
+          <span class="hero-tag" id="lesson-status-tag">ACTIVE CLASS</span>
+          <span id="lesson-time-badge" style="font-size: 12px; color: var(--text-muted);"></span>
+        </div>
+        <h2 class="hero-title" id="active-subject-title">Checking for active class...</h2>
+        <p class="hero-desc" id="active-lesson-desc">Scan classroom QR to register attendance.</p>
+        
+        <!-- Controls based on Role -->
+        <div id="student-checkin-controls">
+          <button class="btn btn-primary" onclick="triggerQrScan()">Confirm Attendance (Scan QR)</button>
+        </div>
+        <div id="admin-lesson-controls" style="display: none; margin-top: 8px;">
+          <a id="presenter-link" class="btn btn-primary" target="_blank" href="#">Open Classroom Presenter (Projector)</a>
+          <button class="btn btn-secondary" onclick="closeCurrentLesson()">Close Session</button>
+        </div>
+      </div>
+
+      <!-- Quick Action Grid -->
+      <div class="grid-2">
+        <div class="action-card" onclick="switchTab('tab-students')">
+          <h3>Students</h3>
+          <p>Total Roster</p>
+          <div class="stat-number" id="stat-students-count">0</div>
+        </div>
+        <div class="action-card" onclick="switchTab('tab-schedule')">
+          <h3>Schedule</h3>
+          <p>Timetable Matrix</p>
+          <div class="stat-number" id="stat-schedule-count">0</div>
+        </div>
+        <div class="action-card" onclick="switchTab('tab-reports')">
+          <h3>Reports</h3>
+          <p>Excel Attendance</p>
+          <div class="stat-number" id="stat-attendance-rate">--%</div>
+        </div>
+        <div class="action-card" onclick="filterAtRiskStudents()">
+          <h3>At Risk</h3>
+          <p>Truancy Warnings</p>
+          <div class="stat-number" id="stat-at-risk-count" style="color: var(--danger);">0</div>
+        </div>
+      </div>
+
+      <!-- Quick Session Launcher for Admins -->
+      <div id="admin-quick-launch" class="card" style="display: none;">
+        <h3 style="font-size: 15px; margin-bottom: 10px;">Launch Attendance Session</h3>
+        <div class="form-group">
+          <label>Select Subject</label>
+          <select id="quick-launch-subject" class="input-field"></select>
+        </div>
+        <div class="form-group">
+          <label>Audience</label>
+          <select id="quick-launch-subgroup" class="input-field">
+            <option value="0">All Group (Lecture)</option>
+            <option value="1">Subgroup 1 (Lab/Seminar)</option>
+            <option value="2">Subgroup 2 (Lab/Seminar)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="launchLessonSession()">Start QR Session</button>
+      </div>
+    </section>
+
+    <!-- TAB 2: STUDENTS -->
+    <section id="tab-students" class="view" style="display: none;">
+      <div class="tab-bar">
+        <button id="tab-btn-sg1" class="tab-btn active" onclick="switchRosterSubgroup(1)">Subgroup 1</button>
+        <button id="tab-btn-sg2" class="tab-btn" onclick="switchRosterSubgroup(2)">Subgroup 2</button>
+      </div>
+
+      <div id="roster-list">
+        <!-- Roster student items injected via JS -->
+      </div>
+    </section>
+
+    <!-- TAB 3: SCHEDULE -->
+    <section id="tab-schedule" class="view" style="display: none;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h2 style="font-size: 16px;">Weekly Timetable</h2>
+          <button id="btn-add-subject" class="btn btn-sm btn-primary" style="display:none;" onclick="openAddSubjectModal()">+ Subject</button>
+        </div>
+        <div id="schedule-matrix">
+          <!-- Timetable schedule injected via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: REPORTS -->
+    <section id="tab-reports" class="view" style="display: none;">
+      <div class="card">
+        <h2 style="font-size: 16px; margin-bottom: 8px;">Attendance Reports & Export</h2>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+          Download or send the master group attendance spreadsheet directly to your Telegram chat. Includes conditional Dean's Office formatting and GPS security audit trail.
+        </p>
+        <button class="btn btn-primary" onclick="downloadExcel()">Download Excel Spreadsheet (.xlsx)</button>
+      </div>
+    </section>
+
+    <!-- TAB 5: SETTINGS -->
+    <section id="tab-settings" class="view" style="display: none;">
+      <div class="card">
+        <h2 style="font-size: 16px; margin-bottom: 12px;">Invite Code Management</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+          Students use this alphanumeric code to register in your group:
+        </p>
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+          <input id="settings-invite-code" class="input-field" readonly style="font-weight: 700; letter-spacing: 0.15em; text-align: center; font-size: 18px;" />
+          <button class="btn btn-secondary btn-sm" onclick="copyInviteCode()">Copy</button>
+        </div>
+        <button id="btn-regen-code" class="btn btn-secondary" style="display:none;" onclick="regenerateInviteCode()">Regenerate Code</button>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size: 16px; margin-bottom: 12px;">Group Preferences</h2>
+        <div class="form-group">
+          <label>Group Timezone</label>
+          <select id="settings-timezone" class="input-field">
+            <option value="Europe/Moscow">Europe/Moscow (UTC+3)</option>
+            <option value="UTC">UTC (GMT+0)</option>
+            <option value="Asia/Yekaterinburg">Asia/Yekaterinburg (UTC+5)</option>
+            <option value="Asia/Novosibirsk">Asia/Novosibirsk (UTC+7)</option>
+            <option value="Asia/Vladivostok">Asia/Vladivostok (UTC+10)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Absence Warning Threshold (truancy alerts)</label>
+          <input id="settings-threshold" type="number" min="1" max="20" class="input-field" value="3" />
+        </div>
+        <button id="btn-save-settings" class="btn btn-primary" style="display:none;" onclick="saveGroupSettings()">Save Settings</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('tab-home')">
+      <span class="nav-icon">🏠</span>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('tab-students')">
+      <span class="nav-icon">👥</span>
+      <span>Students</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('tab-schedule')">
+      <span class="nav-icon">📅</span>
+      <span>Schedule</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('tab-settings')">
+      <span class="nav-icon">⚙</span>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <!-- STUDENT ACTION MODAL (BOTTOM SHEET) -->
+  <div id="student-modal" class="modal-overlay" onclick="closeStudentModal(event)">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <h3 class="sheet-title" id="modal-student-name">Student Name</h3>
+      <p class="sheet-subtitle" id="modal-student-meta">Subgroup 1 • Active</p>
+
+      <div class="sheet-actions" id="modal-actions-container">
+        <!-- Actions populated via JS based on admin status -->
+      </div>
+      <button class="btn btn-secondary" style="margin-top: 12px;" onclick="closeStudentModal()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ADD SUBJECT MODAL -->
+  <div id="subject-modal" class="modal-overlay" onclick="closeSubjectModal(event)">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <h3 class="sheet-title">Add Academic Subject</h3>
+      <div class="form-group" style="margin-top: 14px;">
+        <label>Subject Name</label>
+        <input id="new-subject-name" class="input-field" placeholder="e.g. Operating Systems" />
+      </div>
+      <div class="form-group">
+        <label>Lecturer / Teacher Name</label>
+        <input id="new-subject-teacher" class="input-field" placeholder="e.g. Prof. Johnson" />
+      </div>
+      <button class="btn btn-primary" onclick="submitNewSubject()">Create Subject</button>
+      <button class="btn btn-secondary" style="margin-top: 8px;" onclick="closeSubjectModal()">Cancel</button>
+    </div>
+  </div>
+
+  <script src="/static/js/miniapp.js"></script>
+</body>
+</html>

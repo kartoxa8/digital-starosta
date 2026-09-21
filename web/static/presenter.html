@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Classroom Attendance Presenter</title>
+  <link rel="stylesheet" href="/static/css/app.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+</head>
+<body id="presenter-body">
+  <div class="presenter-container">
+    <div class="live-badge">
+      <span class="pulse-dot"></span>
+      <span>LIVE ATTENDANCE SESSION</span>
+    </div>
+    
+    <h1 id="session-title" style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">Scan to Confirm Attendance</h1>
+    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">
+      This dynamic QR code updates every 5 seconds. Screenshots and remote relays will expire.
+    </p>
+
+    <!-- Headcount Counter -->
+    <div style="font-size: 24px; font-weight: 700; color: var(--accent); margin-bottom: 12px;" id="count">
+      Checked in: 0 students
+    </div>
+
+    <!-- QR Canvas Box -->
+    <div class="qr-box">
+      <canvas id="qr"></canvas>
+    </div>
+
+    <!-- Live Headcount Visual Audit (Layer 5) -->
+    <div class="card" style="margin-top: 24px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="font-size: 16px;">Classroom Roster Audit</h3>
+        <span style="font-size: 12px; color: var(--text-muted);">Visual Headcount Verification</span>
+      </div>
+      <table class="attendee-table">
+        <thead>
+          <tr>
+            <th>Student Name</th>
+            <th>Subgroup</th>
+            <th>Time</th>
+            <th>Distance</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="attendees-tbody">
+          <tr>
+            <td colspan="5" style="text-align: center; color: var(--text-muted);">Waiting for check-ins...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="/static/js/presenter.js"></script>
+</body>
+</html>
