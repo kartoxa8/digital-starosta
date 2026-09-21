@@ -1,8 +1,27 @@
 const lessonId = location.pathname.split("/").pop();
-const canvas = document.getElementById("qr");
+const qrEl = document.getElementById("qr");
 const countEl = document.getElementById("count");
 const titleEl = document.getElementById("session-title");
 const tbodyEl = document.getElementById("attendees-tbody");
+
+// qrcodejs instance — created once, updated via makeCode()
+let qrInstance = null;
+
+function renderQR(payload) {
+  if (!qrInstance) {
+    qrInstance = new QRCode(qrEl, {
+      text: payload,
+      width: 260,
+      height: 260,
+      colorDark: "#0f1115",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+  } else {
+    qrInstance.makeCode(payload);
+  }
+  qrEl.style.opacity = "1";
+}
 
 async function refreshPresenter() {
   try {
@@ -13,28 +32,13 @@ async function refreshPresenter() {
     if (d.closed) {
       titleEl.textContent = "Attendance Session Closed";
       countEl.textContent = "Final Attendance: " + (d.count || 0);
-      canvas.style.opacity = "0.2";
+      qrEl.style.opacity = "0.2";
       return;
     }
 
     countEl.textContent = `Checked in: ${d.count} students`;
     const payload = `${location.origin}/checkin?lid=${d.lesson_id}&t=${d.token}&w=${d.window}`;
-
-    QRCode.toCanvas(
-      canvas,
-      payload,
-      {
-        width: 280,
-        margin: 1,
-        color: {
-          dark: "#0f1115",
-          light: "#ffffff",
-        },
-      },
-      (err) => {
-        if (err) console.error("QR Code generation error:", err);
-      }
-    );
+    renderQR(payload);
   } catch (err) {
     console.error("refreshPresenter error:", err);
   }

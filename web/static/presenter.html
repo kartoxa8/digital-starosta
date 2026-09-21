@@ -5,7 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Classroom Attendance Presenter</title>
   <link rel="stylesheet" href="/static/css/app.css" />
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    .qr-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 20px;
+      width: fit-content;
+      margin: 0 auto 24px;
+    }
+    #qr canvas, #qr img {
+      display: block;
+    }
+  </style>
 </head>
 <body id="presenter-body">
   <div class="presenter-container">
@@ -26,7 +41,7 @@
 
     <!-- QR Canvas Box -->
     <div class="qr-box">
-      <canvas id="qr"></canvas>
+      <div id="qr"></div>
     </div>
 
     <!-- Live Headcount Visual Audit (Layer 5) -->
