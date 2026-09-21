@@ -3,15 +3,21 @@ from core.emojis import PremiumEmoji
 
 
 def get_admin_dashboard_kb(group_id: int, webapp_base_url: str, active_lesson_id: int | None = None) -> InlineKeyboardMarkup:
-    buttons = [
-        [
-            InlineKeyboardButton(
-                text="Open Control Panel",
-                web_app=WebAppInfo(url=f"{webapp_base_url}?group_id={group_id}"),
-                icon_custom_emoji_id=PremiumEmoji.CAMPUS_HOME,
-            )
-        ],
-    ]
+    control_panel_url = f"{webapp_base_url}?group_id={group_id}"
+    if control_panel_url.startswith("https://"):
+        open_btn = InlineKeyboardButton(
+            text="Open Control Panel",
+            web_app=WebAppInfo(url=control_panel_url),
+            icon_custom_emoji_id=PremiumEmoji.CAMPUS_HOME,
+        )
+    else:
+        open_btn = InlineKeyboardButton(
+            text="Open Control Panel",
+            url=control_panel_url,
+            icon_custom_emoji_id=PremiumEmoji.CAMPUS_HOME,
+        )
+
+    buttons = [[open_btn]]
 
     if active_lesson_id:
         buttons.append([
