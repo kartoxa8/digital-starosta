@@ -20,7 +20,11 @@ def require_admin(student: Student | None) -> bool:
 
 
 @router.message(Command("admin"))
-async def cmd_admin(message: Message, current_student: Student | None, current_group: Group | None) -> None:
+async def cmd_admin(
+    message: Message,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await message.answer("Access restricted to Head Students and Deputies.")
         return
@@ -47,7 +51,11 @@ async def cmd_admin(message: Message, current_student: Student | None, current_g
 
 
 @router.message(Command("session"))
-async def cmd_session(message: Message, current_student: Student | None, current_group: Group | None) -> None:
+async def cmd_session(
+    message: Message,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await message.answer("Access restricted.")
         return
@@ -70,7 +78,11 @@ async def cmd_session(message: Message, current_student: Student | None, current
 
 
 @router.message(Command("close"))
-async def cmd_close(message: Message, current_student: Student | None, current_group: Group | None) -> None:
+async def cmd_close(
+    message: Message,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await message.answer("Access restricted.")
         return
@@ -91,7 +103,11 @@ async def cmd_close(message: Message, current_student: Student | None, current_g
 
 
 @router.message(Command("roster"))
-async def cmd_roster(message: Message, current_student: Student | None, current_group: Group | None) -> None:
+async def cmd_roster(
+    message: Message,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await message.answer("Access restricted.")
         return
@@ -128,7 +144,11 @@ async def cmd_roster(message: Message, current_student: Student | None, current_
 
 
 @router.message(Command("stats"))
-async def cmd_stats(message: Message, current_student: Student | None, current_group: Group | None) -> None:
+async def cmd_stats(
+    message: Message,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await message.answer("Access restricted.")
         return
@@ -149,7 +169,11 @@ async def cmd_stats(message: Message, current_student: Student | None, current_g
 
 
 @router.message(Command("report"))
-async def cmd_report(message: Message, current_student: Student | None, current_group: Group | None) -> None:
+async def cmd_report(
+    message: Message,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await message.answer("Access restricted.")
         return
@@ -158,7 +182,11 @@ async def cmd_report(message: Message, current_student: Student | None, current_
 
 # Callback Query Handlers
 @router.callback_query(F.data.startswith("export_excel:"))
-async def callback_export_excel(callback: CallbackQuery, current_student: Student | None, current_group: Group | None) -> None:
+async def callback_export_excel(
+    callback: CallbackQuery,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await callback.answer("Access denied.", show_alert=True)
         return
@@ -168,7 +196,11 @@ async def callback_export_excel(callback: CallbackQuery, current_student: Studen
 
 
 @router.callback_query(F.data.startswith("close_lesson:"))
-async def callback_close_lesson(callback: CallbackQuery, current_student: Student | None, current_group: Group | None) -> None:
+async def callback_close_lesson(
+    callback: CallbackQuery,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await callback.answer("Access denied.", show_alert=True)
         return
@@ -189,7 +221,11 @@ async def callback_close_lesson(callback: CallbackQuery, current_student: Studen
 
 
 @router.callback_query(F.data.startswith("start_session_prompt:"))
-async def callback_start_prompt(callback: CallbackQuery, current_student: Student | None, current_group: Group | None) -> None:
+async def callback_start_prompt(
+    callback: CallbackQuery,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await callback.answer("Access denied.", show_alert=True)
         return
@@ -214,7 +250,11 @@ async def callback_start_prompt(callback: CallbackQuery, current_student: Studen
 
 
 @router.callback_query(F.data.startswith("launch_lesson:"))
-async def callback_launch_lesson(callback: CallbackQuery, current_student: Student | None, current_group: Group | None) -> None:
+async def callback_launch_lesson(
+    callback: CallbackQuery,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await callback.answer("Access denied.", show_alert=True)
         return
@@ -260,7 +300,11 @@ async def callback_launch_lesson(callback: CallbackQuery, current_student: Stude
 
 
 @router.callback_query(F.data.startswith("admin_panel:"))
-async def callback_admin_panel(callback: CallbackQuery, current_student: Student | None, current_group: Group | None) -> None:
+async def callback_admin_panel(
+    callback: CallbackQuery,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await callback.answer("Access denied.", show_alert=True)
         return
@@ -289,7 +333,11 @@ async def callback_admin_panel(callback: CallbackQuery, current_student: Student
 
 
 @router.callback_query(F.data.startswith("roster:"))
-async def callback_roster(callback: CallbackQuery, current_student: Student | None, current_group: Group | None) -> None:
+async def callback_roster(
+    callback: CallbackQuery,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await callback.answer("Access denied.", show_alert=True)
         return
@@ -299,7 +347,11 @@ async def callback_roster(callback: CallbackQuery, current_student: Student | No
 
 
 @router.callback_query(F.data.startswith("stats:"))
-async def callback_stats(callback: CallbackQuery, current_student: Student | None, current_group: Group | None) -> None:
+async def callback_stats(
+    callback: CallbackQuery,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not require_admin(current_student) or not current_group:
         await callback.answer("Access denied.", show_alert=True)
         return

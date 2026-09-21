@@ -12,7 +12,11 @@ router = Router(name="common")
 
 
 @router.message(CommandStart())
-async def cmd_start(message: Message, current_student: Student | None, current_group: Group | None) -> None:
+async def cmd_start(
+    message: Message,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     settings = get_settings()
     args = message.text.split()[1:] if message.text else []
     invite_param = args[0].strip().upper() if args else None
@@ -60,7 +64,11 @@ async def cmd_start(message: Message, current_student: Student | None, current_g
 
 
 @router.message(Command("help"))
-async def cmd_help(message: Message, current_student: Student | None, current_group: Group | None) -> None:
+async def cmd_help(
+    message: Message,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     info_icon = emoji(PremiumEmoji.INFO_SIGN)
     if not current_student:
         text = (

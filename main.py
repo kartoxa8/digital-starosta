@@ -37,7 +37,8 @@ async def lifespan(_: FastAPI):
         try:
             bot = Bot(token=settings.bot_token)
             dp = Dispatcher()
-            dp.update.middleware(AuthGuardMiddleware())
+            main_router.message.middleware(AuthGuardMiddleware())
+            main_router.callback_query.middleware(AuthGuardMiddleware())
             dp.include_router(main_router)
             bot_task = asyncio.create_task(dp.start_polling(bot, handle_signals=False))
             logger.info("Telegram Bot polling started successfully.")

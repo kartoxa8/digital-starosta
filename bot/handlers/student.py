@@ -12,7 +12,11 @@ router = Router(name="student")
 
 @router.message(Command("me"))
 @router.message(Command("profile"))
-async def cmd_profile(message: Message, current_student: Student | None, current_group: Group | None) -> None:
+async def cmd_profile(
+    message: Message,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not current_student or not current_group:
         await message.answer("You are not registered in any academic group yet. Use /start to join.")
         return
@@ -22,7 +26,11 @@ async def cmd_profile(message: Message, current_student: Student | None, current
 
 
 @router.callback_query(F.data == "student_profile")
-async def callback_profile(callback: CallbackQuery, current_student: Student | None, current_group: Group | None) -> None:
+async def callback_profile(
+    callback: CallbackQuery,
+    current_student: Student | None = None,
+    current_group: Group | None = None,
+) -> None:
     if not current_student or not current_group:
         await callback.answer("Registration not found.", show_alert=True)
         return
